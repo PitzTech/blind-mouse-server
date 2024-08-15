@@ -1,0 +1,36 @@
+services:
+  api:
+    container_name: api-mouse-master
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - ADMIN_EMAIL=admin
+      - ADMIN_PASSWORD=password
+      - DB_NAME=blind-mouse-postgres
+      - DB_URL=postgres://postgres:password@postgres:5432/blind-mouse-postgres
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    volumes:
+      - .:/usr/src/api
+      - /usr/src/api/node_modules
+    command: yarn start:dev
+
+  postgres:
+    container_name: db-postgres
+    platform: linux/x86_64
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - ./transactions:/docker-entrypoint-initdb.d
+      - ./data/postgres:/var/lib/postgresql/data
+
